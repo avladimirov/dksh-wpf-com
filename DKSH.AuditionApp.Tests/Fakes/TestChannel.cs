@@ -1,12 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using DKSH.AuditionApp.Domain.Abstract;
 using DKSH.AuditionApp.Domain.Interfaces;
-using DKSH.AuditionApp.Domain.Primitives;
-using DKSH.AuditionApp.Domain.Abstract;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DKSH.AuditionApp.Infrastructure.SerialPort
+namespace DKSH.AuditionApp.Tests.Fakes
 {
-    public class SerialPortChannel : ChannelBase
+    internal class TestChannel : ChannelBase
     {
         public override Task<bool> Connect()
         {

@@ -38,6 +38,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialPort\SerialPortChannel.cs" />
     <Compile Include="SerialPort\SerialPortChannelManager.cs" />
+    <Compile Include="Services\IDialogService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DKSH.AuditionApp.Domain\DKSH.AuditionApp.Domain.csproj">

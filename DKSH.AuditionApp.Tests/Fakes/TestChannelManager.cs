@@ -4,9 +4,9 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace DKSH.AuditionApp.Infrastructure.SerialPort
+namespace DKSH.AuditionApp.Tests.Fakes
 {
-    public class SerialPortChannelManager : ChannelManagerBase
+    internal class TestChannelManager : ChannelManagerBase
     {
         protected override IEnumerable<IChannel> RetrieveChannels()
         {

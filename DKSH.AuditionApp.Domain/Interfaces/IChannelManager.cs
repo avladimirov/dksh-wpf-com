@@ -1,7 +1,11 @@
-﻿namespace DKSH.AuditionApp.Domain.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace DKSH.AuditionApp.Domain.Interfaces
 {
     public interface IChannelManager : ITransmit
     {
-        bool CanSend { get; }
+        Task<bool> TryConnect();
+
+        Task Disconnect();
     }
 }
