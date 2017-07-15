@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKSH.AuditonApp.WPF", "DKSH.AuditonApp.WPF\DKSH.AuditonApp.WPF.csproj", "{503A841D-491B-441C-974F-7A9C8448CB11}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Infrastructure", "01. Infrastructure", "{540BCB91-79AC-4770-9B60-AC80C0698624}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Desktop App", "02. Desktop App", "{A91AA1A2-040A-4626-8E22-6D65A0C808D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKSH.AuditionApp.Infrastructure", "DKSH.AuditionApp.Infrastructure\DKSH.AuditionApp.Infrastructure.csproj", "{C3B84777-21F6-48E7-A590-D9F02BBDEFD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKSH.AuditionApp.Domain", "DKSH.AuditionApp.Domain\DKSH.AuditionApp.Domain.csproj", "{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{503A841D-491B-441C-974F-7A9C8448CB11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{503A841D-491B-441C-974F-7A9C8448CB11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{503A841D-491B-441C-974F-7A9C8448CB11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{503A841D-491B-441C-974F-7A9C8448CB11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3B84777-21F6-48E7-A590-D9F02BBDEFD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3B84777-21F6-48E7-A590-D9F02BBDEFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3B84777-21F6-48E7-A590-D9F02BBDEFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3B84777-21F6-48E7-A590-D9F02BBDEFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{503A841D-491B-441C-974F-7A9C8448CB11} = {A91AA1A2-040A-4626-8E22-6D65A0C808D4}
+		{C3B84777-21F6-48E7-A590-D9F02BBDEFD8} = {540BCB91-79AC-4770-9B60-AC80C0698624}
+		{7C46BE4C-64D1-42A2-9061-A7BD098BD1F7} = {540BCB91-79AC-4770-9B60-AC80C0698624}
+	EndGlobalSection
+EndGlobal
