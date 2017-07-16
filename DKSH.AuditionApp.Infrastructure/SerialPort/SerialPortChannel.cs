@@ -13,39 +13,26 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
         private readonly string _portName;
         private Ports.SerialPort _serialPort;
         private int _awaitingHandshake;
+        private Thread _dedicatedThread;
+        private ManualResetEvent _closing = new ManualResetEvent(false);
 
         public SerialPortChannel(string portName)
         {
             _portName = portName;
-            SetupPort();
+            _dedicatedThread = new Thread(new ThreadStart(PortMonitor))
+            {
+                IsBackground = false,
+                Priority = ThreadPriority.Highest,
+                Name = $"Thread-{portName}"
+            };
+            _dedicatedThread.TrySetApartmentState(ApartmentState.STA);
+
+            ConfigrePort();
         }
 
-        [STAThread]
         public override Task<bool> Connect()
         {
-            if (_serialPort.IsOpen && (base.State != ChannelState.Connected || base.State != ChannelState.Connected))
-                return Task.FromResult(false);
-
-            try
-            {
-                // establish connection
-                _serialPort.Open();
-                base.State = ChannelState.Connecting;
-
-                // request handshare
-                Interlocked.Increment(ref _awaitingHandshake);
-                _serialPort.Write(new char[] { Constants.SeriaPort.Handshake_Request }, 0, 1);
-
-                return Task.Run(() =>
-                {
-                    return true;
-                }); //TODO: await handle on hanshare response
-            }
-            catch
-            {
-                base.State = ChannelState.Disconected;
-
-            }
+            _dedicatedThread.Start();
             return Task.FromResult(true);
         }
 
@@ -79,20 +66,17 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
 
         public void Dispose()
         {
-            if(_serialPort != null)
+            // leave bgr thread to cleanup
+            _closing.Set();
+
+            // await
+            if (_dedicatedThread.IsAlive)
             {
-                if (_serialPort.IsOpen)
-                {
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.DiscardOutBuffer();
-                    _serialPort.Close();
-                }
-                _serialPort.Dispose();
-                _serialPort = null;
+                _dedicatedThread.Join(TimeSpan.FromSeconds(1));
             }
         }
 
-        private void SetupPort()
+        private void ConfigrePort()
         {
             // safe initialize
             _serialPort = new Ports.SerialPort();
@@ -126,6 +110,47 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
                 Dispose();
                 //SetupCom();
             };
+        }
+
+        private void PortMonitor()
+        {
+            if (_serialPort.IsOpen && (base.State != ChannelState.Connected || base.State != ChannelState.Connected))
+                return;
+
+            try
+            {
+                // establish connection
+                _serialPort.Open();
+                base.State = ChannelState.Connecting;
+
+                // request handshare
+                Interlocked.Increment(ref _awaitingHandshake);
+                _serialPort.Write(new char[] { Constants.SeriaPort.Handshake_Request }, 0, 1);
+
+            }
+            catch
+            {
+                base.State = ChannelState.Closed;
+                return;
+            }
+
+            // keep thread alive for the lifetime of the port connection
+            _closing.WaitOne();
+
+            // cleanup
+            if (_serialPort != null)
+            {
+                if (_serialPort.IsOpen)
+                {
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.DiscardOutBuffer();
+                    _serialPort.Close();
+                }
+                _serialPort.Dispose();
+                _serialPort = null;
+            }
+
+            base.State = ChannelState.Closed;
         }
 
         private void ProcessChars()

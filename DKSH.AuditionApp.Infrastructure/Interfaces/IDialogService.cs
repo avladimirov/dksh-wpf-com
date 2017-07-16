@@ -1,7 +1,9 @@
-﻿namespace DKSH.AuditionApp.Infrastructure.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace DKSH.AuditionApp.Infrastructure.Interfaces
 {
     public interface IDialogService
     {
-        uint SelectNumberDialog();
+        Task<uint> SelectNumberDialog();
     }
 }

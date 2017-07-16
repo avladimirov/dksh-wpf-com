@@ -3,6 +3,7 @@ using DKSH.AuditionApp.Infrastructure.Interfaces;
 using System.ComponentModel.Composition;
 using System.Windows.Threading;
 using System;
+using System.Threading.Tasks;
 
 namespace DKSH.AuditionApp.Application.Services
 {
@@ -11,12 +12,17 @@ namespace DKSH.AuditionApp.Application.Services
     {
         protected static Dispatcher Dispatcher => App.Current.Dispatcher;
 
-        public uint SelectNumberDialog()
+        public async Task<uint> SelectNumberDialog()
         {
-            var dialog = new NumSelectionDialog();
-            dialog.ShowDialog();
+            var result = await Dispatcher.InvokeAsync(() =>
+            {
+                var dialog = new NumSelectionDialog();
+                dialog.ShowDialog();
 
-            return dialog.GetData();
+                return dialog.GetData();
+            });
+
+            return result;
         }
     }
 }

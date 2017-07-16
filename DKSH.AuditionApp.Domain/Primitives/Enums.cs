@@ -5,6 +5,7 @@
         Unknown,
         Connecting,
         Connected,
-        Disconected
+        Disconected,
+        Closed
     }
 }

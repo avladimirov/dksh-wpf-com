@@ -47,7 +47,7 @@ namespace DKSH.AuditionApp.Application.ViewModels
             var result = await _dataService.Signal().ConfigureAwait(false);
 
             // bring user dialog to specify data
-            var numData = _dialogService.SelectNumberDialog();
+            var numData = await _dialogService.SelectNumberDialog().ConfigureAwait(false);
 
             // send data and update result on screen
             NumDataResponse = await _dataService.SendNumericData(numData).ConfigureAwait(false);

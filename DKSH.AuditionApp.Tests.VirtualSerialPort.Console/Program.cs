@@ -1,7 +1,5 @@
 ﻿using Com0Com.CSharp;
 using System;
-using System.IO.Ports;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DKSH.AuditionApp.Tests.VirtualSerialPort
@@ -10,7 +8,7 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
     {
         private static readonly Com0ComSetupCFacade setupCFacade = new Com0ComSetupCFacade();
         private static CrossoverPortPair virtualPair;
-        private static string virtualPortName = "COM-A";
+        private static string virtualPortName = "COM-B";
 
         [STAThread]
         static void Main(string[] args)
@@ -39,7 +37,7 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
             Console.WriteLine();
 
             // Create some new virtual com port pairs
-            virtualPair = await setupCFacade.CreatePortPairAsync(virtualPortName, "COM-B");
+            virtualPair = await setupCFacade.CreatePortPairAsync(virtualPortName, "COM-A");
 
             Console.WriteLine("Virtual crossover port pairs after creation:");
             var portPairsAfterCreation = await setupCFacade.GetCrossoverPortPairsAsync();
