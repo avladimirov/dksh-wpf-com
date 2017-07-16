@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using DKSH.AuditionApp.Domain.Interfaces;
+﻿using DKSH.AuditionApp.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DKSH.AuditionApp.Domain.Abstract
 {
