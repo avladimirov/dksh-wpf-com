@@ -1,6 +1,10 @@
 ﻿using DKSH.AuditionApp.Domain.Interfaces;
+using DKSH.AuditionApp.Domain.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace DKSH.AuditionApp.Domain.Abstract
@@ -9,9 +13,26 @@ namespace DKSH.AuditionApp.Domain.Abstract
     {
         protected IEnumerable<IChannel> Channels { get; private set; }
 
+        private readonly BehaviorSubject<bool> _isConnected = new BehaviorSubject<bool>(false);
+        public IObservable<bool> IsConnected { get { return _isConnected; } } 
+
         public ChannelManagerBase()
         {
+            // setup channels
             Channels = RetrieveChannels();
+
+            // wire status updates
+            if (Channels == null || !Channels.Any()) return;
+
+            // monitor all channels, optimize manager status update
+            var chMonitor = Channels.Select(ch => Observable.FromEvent<Action<ChannelState>, IChannel>(h => ch.StateChanged += h, h => ch.StateChanged -= h));
+            Observable.Concat(chMonitor)
+                      .Throttle(TimeSpan.FromMilliseconds(200))
+                      .Subscribe((ch) =>
+                      {
+                          var hasAtLeastOneConnected = Channels.Any(c => c.State == ChannelState.Connected);
+                          _isConnected.OnNext(hasAtLeastOneConnected);
+                      });
         }
 
         public async Task<bool> TryConnect()

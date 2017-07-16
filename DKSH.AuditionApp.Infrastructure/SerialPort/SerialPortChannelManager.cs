@@ -2,12 +2,14 @@
 using DKSH.AuditionApp.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Management;
 using Ports = System.IO.Ports;
 
 namespace DKSH.AuditionApp.Infrastructure.SerialPort
 {
+    [Export(typeof(IChannelManager))]
     public class SerialPortChannelManager : ChannelManagerBase, IDisposable
     {
         protected override IEnumerable<IChannel> RetrieveChannels()

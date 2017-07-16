@@ -1,26 +1,29 @@
-﻿using DKSH.AuditionApp.Infrastructure.SerialPort;
+﻿using DKSH.AuditionApp.Application.ViewModels;
+using DKSH.AuditionApp.Domain.Interfaces;
+using DKSH.AuditionApp.Infrastructure.Interfaces;
+using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Windows;
 
-namespace DKSH.Application
+namespace DKSH.AuditionApp.Application
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        protected MainWindowViewModel ViewModel { get; private set; }
 
-        public MainWindow()
+        [ImportingConstructor]
+        public MainWindow(IDataService dataService, IChannelManager channelManager, IDialogService dialogService)
         {
             InitializeComponent();
+            if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-            Loaded += MainWindow_Loaded;
+            ViewModel = new MainWindowViewModel(dataService, channelManager, dialogService);
+            DataContext = ViewModel;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            var manager = new SerialPortChannelManager();
 
-            manager.TryConnect();
-        }
     }
 }
