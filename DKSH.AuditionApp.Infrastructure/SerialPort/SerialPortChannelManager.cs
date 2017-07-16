@@ -1,5 +1,6 @@
 ﻿using DKSH.AuditionApp.Domain.Abstract;
 using DKSH.AuditionApp.Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
@@ -7,7 +8,7 @@ using Ports = System.IO.Ports;
 
 namespace DKSH.AuditionApp.Infrastructure.SerialPort
 {
-    public class SerialPortChannelManager : ChannelManagerBase
+    public class SerialPortChannelManager : ChannelManagerBase, IDisposable
     {
         protected override IEnumerable<IChannel> RetrieveChannels()
         {
@@ -36,6 +37,15 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
             {
                 var ports = searcher.Get().OfType<ManagementBaseObject>();
                 return ports?.Select(p => p["DeviceID"] as string);
+            }
+        }
+
+        public void Dispose()
+        {
+            var disposableChannels = Channels.OfType<IDisposable>().ToList();
+            if (disposableChannels.Any())
+            {
+                disposableChannels.ForEach(ch => ch.Dispose());
             }
         }
     }

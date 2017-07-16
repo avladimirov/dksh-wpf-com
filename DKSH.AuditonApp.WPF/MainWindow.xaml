@@ -4,8 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DKSH.Application"
-        mc:Ignorable="d" Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        mc:Ignorable="d" Title="DKSH Audition App - Adrian Vladimirov" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="80" />
+        </Grid.RowDefinitions>
+        <TextBlock Margin="30,0" VerticalAlignment="Center" Text="{Binding ConnectionState, Mode=OneWay}" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <ComboBox Margin="10,8" ItemsSource="{Binding NumericItems, Mode=OneTime}" SelectedItem="{Binding SelectedNumericItem, Mode=TwoWay}" Width="120" />
+            <Button Margin="10,8" Width="60">TEST</Button>
+        </StackPanel>
+        <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{Binding Response}"/>
     </Grid>
 </Window>

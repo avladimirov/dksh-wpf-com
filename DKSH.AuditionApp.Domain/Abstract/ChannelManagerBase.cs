@@ -7,21 +7,21 @@ namespace DKSH.AuditionApp.Domain.Abstract
 {
     public abstract class ChannelManagerBase : IChannelManager
     {
-        private readonly IEnumerable<IChannel> _channels;
+        protected IEnumerable<IChannel> Channels { get; private set; }
 
         public ChannelManagerBase()
         {
-            _channels = RetrieveChannels();
+            Channels = RetrieveChannels();
         }
 
         public async Task<bool> TryConnect()
         {
-            if (_channels != null || !_channels.Any())
+            if (Channels == null || !Channels.Any())
             {
                 return false;
             }
 
-            var connectTasks = _channels.ToList().Select(ch => ch.Connect());
+            var connectTasks = Channels.ToList().Select(ch => ch.Connect());
             await Task.WhenAll(connectTasks);
 
             return true; //TODO: verify
@@ -29,12 +29,12 @@ namespace DKSH.AuditionApp.Domain.Abstract
 
         public Task<bool> TrySend(byte[] data)
         {
-            if (_channels != null || !_channels.Any())
+            if (Channels != null || !Channels.Any())
             {
                 return Task.FromResult(false);
             }
 
-            var activeChannel = _channels.FirstOrDefault(ch => ch.State == Primitives.ChannelState.Connected);
+            var activeChannel = Channels.FirstOrDefault(ch => ch.State == Primitives.ChannelState.Connected);
             if (activeChannel != null)
             {
                 return activeChannel.TrySend(data);
@@ -45,7 +45,7 @@ namespace DKSH.AuditionApp.Domain.Abstract
 
         public async Task Disconnect()
         {
-            var disconnectTasks = _channels.ToList().Select(ch => ch.Disconnect());
+            var disconnectTasks = Channels.ToList().Select(ch => ch.Disconnect());
             await Task.WhenAll(disconnectTasks);
         }
 

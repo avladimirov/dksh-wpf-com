@@ -18,7 +18,8 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
             // Create virtual COM pair if necessary
             Task.Run(CreatePairAsync).Wait();
 
-            var vPort = SetupPort(virtualPortName);
+            // open virtual port to simulate a responder
+            PortSimulator.SetupPort(virtualPortName);
 
             Console.WriteLine("Press key to exit and delete virtual ports");
             Console.ReadKey();
@@ -62,27 +63,6 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
                 Console.WriteLine($"Virtual Port Pair: {pp.PairNumber}({pp.PortNameA}) <-> {pp.PairNumber}({pp.PortNameB})");
             }
         }
-
-        static SerialPort SetupPort(string portName)
-        {
-            var port = new SerialPort(portName);
-            port.DataReceived += (s, args) =>
-            {
-                var strData = port.ReadExisting();
-                if (strData == null) return;
-
-                // process by simulating specification
-                if (strData.Length == 1 && strData.First() == 'i')
-                    port.Write("a");
-
-            };
-            port.Open();
-            return port;
-        }
-
-        static void p_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            Console.WriteLine((sender as SerialPort).ReadExisting());
-        }
+        
     }
 }

@@ -10,7 +10,9 @@ namespace DKSH.AuditionApp.Tests.Fakes
     {
         protected override IEnumerable<IChannel> RetrieveChannels()
         {
-            throw new NotImplementedException();
+            yield return new TestChannel("COM1");
+            yield return new TestChannel("COM2");
+            yield return new TestChannel("COM3");
         }
     }
 }

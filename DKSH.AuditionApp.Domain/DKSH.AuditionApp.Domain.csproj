@@ -45,6 +45,7 @@
     <Compile Include="Interfaces\IChannel.cs" />
     <Compile Include="Interfaces\IChannelManager.cs" />
     <Compile Include="Interfaces\ITransmit.cs" />
+    <Compile Include="Primitives\Constants.cs" />
     <Compile Include="Primitives\Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

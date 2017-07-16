@@ -1,5 +1,8 @@
 ﻿using DKSH.AuditionApp.Domain.Abstract;
+using DKSH.AuditionApp.Domain.Primitives;
 using System;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Ports = System.IO.Ports;
 
@@ -7,22 +10,19 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
 {
     public class SerialPortChannel : ChannelBase, IDisposable
     {
-        private static readonly char RequestHandshake = 'i';
-        private static readonly char ResponseHandshake = 'c';
-
         private readonly string _portName;
         private Ports.SerialPort _serialPort;
-        private bool _awaitingConnResponse;
+        private int _awaitingHandshake;
 
         public SerialPortChannel(string portName)
         {
-            this._portName = portName;
-            this.SetupCom();
+            _portName = portName;
+            SetupPort();
         }
 
         public override Task<bool> Connect()
         {
-            if (this._serialPort.IsOpen && (base.State != Domain.Primitives.ChannelState.Connected || base.State != Domain.Primitives.ChannelState.Connected))
+            if (_serialPort.IsOpen && (base.State != ChannelState.Connected || base.State != ChannelState.Connected))
                 return Task.FromResult(false);
 
             return Task.Run(() =>
@@ -30,15 +30,18 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
                 try
                 { 
                     // establish connection
-                    this._serialPort.Open();
+                    _serialPort.Open();
+                    base.State = ChannelState.Connecting;
+
                     // request handshare
-                    this._serialPort.Write(new char[] { RequestHandshake }, 0, 1);
+                    Interlocked.Increment(ref _awaitingHandshake);
+                    _serialPort.Write(new char[] { Constants.SeriaPort.Handshake_Request }, 0, 1);
 
                     return true; //TODO: await handle on hanshare response
                 }
                 catch
                 {
-                    base.State = Domain.Primitives.ChannelState.Disconected;
+                    base.State = ChannelState.Disconected;
 
                 }
                 return true;
@@ -47,7 +50,7 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
 
         public override Task<bool> TrySend(byte[] data)
         {
-            if (this.State != Domain.Primitives.ChannelState.Connected)
+            if (State != ChannelState.Connected)
             {
                 return Task.FromResult(false);
             }
@@ -64,34 +67,44 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
 
         public override Task<bool> Disconnect()
         {
-            if (this.State != Domain.Primitives.ChannelState.Connected)
+            if (State != ChannelState.Connected)
             {
                 return Task.FromResult(false);
             }
 
-            base.State = Domain.Primitives.ChannelState.Disconected;
+            base.State = ChannelState.Disconected;
             return Task.FromResult(true);
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            if(_serialPort != null)
+            {
+                _serialPort.DiscardInBuffer();
+                _serialPort.DiscardOutBuffer();
+                _serialPort.Dispose();
+                _serialPort = null;
+            }
         }
 
-        private void SetupCom()
+        private void SetupPort()
         {
+            // safe initialize
+            _serialPort = new Ports.SerialPort();
+
             // configure
-            this._serialPort.PortName = _portName;
-            this._serialPort.BaudRate = 38400;
-            this._serialPort.Handshake = Ports.Handshake.None;
-            this._serialPort.Parity = Ports.Parity.None;
-            this._serialPort.DataBits = 8;
-            this._serialPort.StopBits = Ports.StopBits.One;
-            this._serialPort.ReadTimeout = 500;
-            this._serialPort.WriteTimeout = 50;
+            _serialPort.PortName = _portName;
+            _serialPort.BaudRate = 38400;
+            _serialPort.Handshake = Ports.Handshake.None;
+            _serialPort.Parity = Ports.Parity.None;
+            _serialPort.DataBits = 8;
+            _serialPort.StopBits = Ports.StopBits.One;
+            _serialPort.ReadTimeout = 500;
+            _serialPort.WriteTimeout = 50;
+            _serialPort.Encoding = Encoding.ASCII;
 
             // wire handlers
-            this._serialPort.DataReceived += (s, args) =>
+            _serialPort.DataReceived += (s, args) =>
             {
                 switch (args.EventType)
                 {
@@ -99,11 +112,11 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
                     case Ports.SerialData.Eof: ProcessBuffer(); break;
                 }
             };
-            this._serialPort.ErrorReceived += (s, args) =>
+            _serialPort.ErrorReceived += (s, args) =>
             {
                 //TODO: log
             };
-            this._serialPort.Disposed += (s, args) =>
+            _serialPort.Disposed += (s, args) =>
             {
                 Dispose();
                 //SetupCom();
@@ -112,11 +125,12 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
 
         private void ProcessChars()
         {
-            var charData = this._serialPort.ReadChar();
+            var charData = _serialPort.ReadChar();
             // 
-            if (_awaitingConnResponse && Convert.ToChar(charData) == ResponseHandshake)
+            if (_awaitingHandshake > 0 && Convert.ToChar(charData) == Constants.SeriaPort.Handshake_Response)
             {
-                base.State = Domain.Primitives.ChannelState.Connected;
+                base.State = ChannelState.Connected;
+                Interlocked.Decrement(ref _awaitingHandshake);
             }
         }
 
@@ -124,7 +138,6 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
         {
             //throw new NotImplementedException();
         }
-
 
     }
 }
