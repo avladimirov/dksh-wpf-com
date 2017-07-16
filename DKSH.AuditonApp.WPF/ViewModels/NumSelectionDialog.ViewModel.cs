@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DKSH.AuditionApp.Application.ViewModels
 {
-    public class NumSelectionDialogViewModel
+    public class NumSelectionDialogViewModel : ReactiveObject
     {
         public IEnumerable<int> NumericItems { get; } = Enumerable.Range(1, 10);
 

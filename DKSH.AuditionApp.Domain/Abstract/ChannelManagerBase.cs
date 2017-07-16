@@ -14,7 +14,7 @@ namespace DKSH.AuditionApp.Domain.Abstract
         protected IEnumerable<IChannel> Channels { get; private set; }
 
         private readonly BehaviorSubject<bool> _isConnected = new BehaviorSubject<bool>(false);
-        public IObservable<bool> IsConnected { get { return _isConnected; } } 
+        public IObservable<bool> IsConnected { get { return _isConnected; } }
 
         public ChannelManagerBase()
         {
@@ -25,7 +25,7 @@ namespace DKSH.AuditionApp.Domain.Abstract
             if (Channels == null || !Channels.Any()) return;
 
             // monitor all channels, optimize manager status update
-            var chMonitor = Channels.Select(ch => Observable.FromEvent<Action<ChannelState>, IChannel>(h => ch.StateChanged += h, h => ch.StateChanged -= h));
+            var chMonitor = Channels.Select(ch => Observable.FromEvent<Action<ChannelState>, IChannel>(h => (state) => h(ch), h => ch.StateChanged += h, h => ch.StateChanged -= h));
             Observable.Concat(chMonitor)
                       .Throttle(TimeSpan.FromMilliseconds(200))
                       .Subscribe((ch) =>

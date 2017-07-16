@@ -14,11 +14,25 @@ namespace DKSH.AuditionApp.Application
     {
         protected MainWindowViewModel ViewModel { get; private set; }
 
-        [ImportingConstructor]
-        public MainWindow(IDataService dataService, IChannelManager channelManager, IDialogService dialogService)
+        #region Services
+
+        [Import]
+        private IDataService dataService;
+
+        [Import]
+        private IChannelManager channelManager;
+
+        [Import]
+        private IDialogService dialogService;
+
+        #endregion
+
+        public MainWindow()
         {
             InitializeComponent();
             if (DesignerProperties.GetIsInDesignMode(this)) return;
+
+            App.DIContainer.SatisfyImportsOnce(this);
 
             ViewModel = new MainWindowViewModel(dataService, channelManager, dialogService);
             DataContext = ViewModel;

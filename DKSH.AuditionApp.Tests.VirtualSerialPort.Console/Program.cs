@@ -12,7 +12,7 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
         private static CrossoverPortPair virtualPair;
         private static string virtualPortName = "COM-A";
 
-
+        [STAThread]
         static void Main(string[] args)
         {
             // Create virtual COM pair if necessary

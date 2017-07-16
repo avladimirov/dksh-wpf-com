@@ -1,9 +1,11 @@
 ﻿using DKSH.AuditionApp.Domain.Interfaces;
 using System;
+using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace DKSH.AuditionApp.Application
 {
@@ -12,19 +14,26 @@ namespace DKSH.AuditionApp.Application
     /// </summary>
     public partial class App : System.Windows.Application
     {
-        private CompositionContainer diContainer;
+        public static CompositionContainer DIContainer { get; private set; }
+
         private IChannelManager _channelManager;
 
         public App()
         {
-            this.InitializeContainter();
+            DIContainer = new CompositionContainer(new ApplicationCatalog(), CompositionOptions.ExportCompositionService | CompositionOptions.IsThreadSafe);
+            _channelManager = DIContainer.GetExport<IChannelManager>().Value;
+
+            // listen for unhandled exceptions
+            Current.DispatcherUnhandledException += Dispatcher_UnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            _channelManager = diContainer.GetExport<IChannelManager>().Value;
             Task.Run(_channelManager.TryConnect);
         }
 
@@ -33,15 +42,31 @@ namespace DKSH.AuditionApp.Application
             base.OnExit(e);
 
             _channelManager.Disconnect();
+
+            // cleanup
+            var disposable = _channelManager as IDisposable;
+            if (disposable != null)
+            {
+                disposable.Dispose();
+                disposable = null;
+            }
         }
 
-        private void InitializeContainter()
+        #region Exception handling
+
+        private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            var catalogs = new AggregateCatalog();
-            AppDomain.CurrentDomain.GetAssemblies().ToList()
-                                   .ForEach(asm => catalogs.Catalogs.Add(new AssemblyCatalog(asm)));
-
-            diContainer = new CompositionContainer(catalogs, CompositionOptions.ExportCompositionService | CompositionOptions.IsThreadSafe);
         }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+        }
+
+        private void Dispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+        }
+
+        #endregion
+
     }
 }

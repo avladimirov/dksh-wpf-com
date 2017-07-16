@@ -20,32 +20,33 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
             SetupPort();
         }
 
+        [STAThread]
         public override Task<bool> Connect()
         {
             if (_serialPort.IsOpen && (base.State != ChannelState.Connected || base.State != ChannelState.Connected))
                 return Task.FromResult(false);
 
-            return Task.Run(() =>
+            try
             {
-                try
-                { 
-                    // establish connection
-                    _serialPort.Open();
-                    base.State = ChannelState.Connecting;
+                // establish connection
+                _serialPort.Open();
+                base.State = ChannelState.Connecting;
 
-                    // request handshare
-                    Interlocked.Increment(ref _awaitingHandshake);
-                    _serialPort.Write(new char[] { Constants.SeriaPort.Handshake_Request }, 0, 1);
+                // request handshare
+                Interlocked.Increment(ref _awaitingHandshake);
+                _serialPort.Write(new char[] { Constants.SeriaPort.Handshake_Request }, 0, 1);
 
-                    return true; //TODO: await handle on hanshare response
-                }
-                catch
+                return Task.Run(() =>
                 {
-                    base.State = ChannelState.Disconected;
+                    return true;
+                }); //TODO: await handle on hanshare response
+            }
+            catch
+            {
+                base.State = ChannelState.Disconected;
 
-                }
-                return true;
-            });
+            }
+            return Task.FromResult(true);
         }
 
         public override Task<bool> TrySend(byte[] data)
@@ -80,8 +81,12 @@ namespace DKSH.AuditionApp.Infrastructure.SerialPort
         {
             if(_serialPort != null)
             {
-                _serialPort.DiscardInBuffer();
-                _serialPort.DiscardOutBuffer();
+                if (_serialPort.IsOpen)
+                {
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.DiscardOutBuffer();
+                    _serialPort.Close();
+                }
                 _serialPort.Dispose();
                 _serialPort = null;
             }

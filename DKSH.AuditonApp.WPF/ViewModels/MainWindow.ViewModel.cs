@@ -22,7 +22,7 @@ namespace DKSH.AuditionApp.Application.ViewModels
             }
         }
 
-        public ReactiveCommand<Unit, Unit> Signal { get; set; }
+        public ReactiveCommand<Unit, Unit> SignalCommand { get; set; }
 
         private readonly IDataService _dataService;
         private readonly IChannelManager _channelManager;
@@ -35,21 +35,22 @@ namespace DKSH.AuditionApp.Application.ViewModels
             _dialogService = dialogService;
 
             // setup commands
-            Signal = ReactiveCommand.CreateFromTask(() => DoSignalAsync(), canExecute: _channelManager.IsConnected);
+            SignalCommand = ReactiveCommand.CreateFromTask(() => DoSignalAsync(), canExecute: _channelManager.IsConnected);
 
             // setup properties
             _channelManager.IsConnected.Select(isConnected => isConnected ? "Connected" : "Disconnected")
                                        .ToProperty(this, vm => vm.SignalState, out _signalState);
-
         }
 
         private async Task DoSignalAsync()
         {
-            var result = await _dataService.Signal();
+            var result = await _dataService.Signal().ConfigureAwait(false);
 
+            // bring user dialog to specify data
             var numData = _dialogService.SelectNumberDialog();
 
-            NumDataResponse = await _dataService.SendNumericData(numData);
+            // send data and update result on screen
+            NumDataResponse = await _dataService.SendNumericData(numData).ConfigureAwait(false);
         }
     }
 }

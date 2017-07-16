@@ -16,6 +16,15 @@ namespace DKSH.AuditionApp.Tests.VirtualSerialPort
             try
             {
                 _port = new SerialPort(portName);
+                _port.Encoding = System.Text.Encoding.ASCII;
+                _port.BaudRate = 38400;
+                _port.Handshake = Handshake.None;
+                _port.Parity = Parity.None;
+                _port.DataBits = 8;
+                _port.StopBits = StopBits.One;
+                _port.ReadTimeout = 500;
+                _port.WriteTimeout = 50;
+
                 _port.DataReceived += (s, args) =>
                 {
                     var strData = _port.ReadExisting();
